@@ -7,32 +7,35 @@
 // MARK: Porque não usar um struct nesse cenario?
 // Iremos usar mais pra frente usar um call e a propriedade subtitle será atualizada aqui, então conforme a complexidade aumenta faz mais sentido usarmos uma classe para isso.
 
-import Foundation
+import UIKit
 
 final class TitleSubtitleCellViewMode {
     
     enum CellType {
         case text
         case date
+        case image
     }
     
     let title: String
     private(set) var subtitle: String
     let placeholder: String
     let type: CellType
-    private(set)var onUpdate: () -> Void = {}
+    private(set)var image: UIImage?
+    private(set)var onCellUpdate: (() -> Void)?
+    
     lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd/MM/yyy"
         return formatter
     }()
     
-    init(title: String, subtitle: String, placeholder: String, type: CellType, onUpdate: @escaping () -> Void) {
+    init(title: String, subtitle: String, placeholder: String, type: CellType, onCellUpdate: (() -> Void)?) {
         self.title = title
         self.subtitle = subtitle
         self.placeholder = placeholder
         self.type = type
-        self.onUpdate = onUpdate
+        self.onCellUpdate = onCellUpdate
     }
     
     func update(title: String) {
@@ -40,8 +43,13 @@ final class TitleSubtitleCellViewMode {
     }
     
     func update(date: Date) {
-        let date = dateFormatter.string(from: date)
-        self.subtitle = date
-        // realizar reload na celula de alguma forma
+        let dateString = dateFormatter.string(from: date)
+        self.subtitle = dateString
+        onCellUpdate?()
+    }
+    
+    func update(image: UIImage) {
+        self.image = image
+        onCellUpdate?()
     }
 }

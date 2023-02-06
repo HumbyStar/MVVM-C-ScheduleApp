@@ -18,9 +18,10 @@ class TitleSubtitleCell: UITableViewCell {
     var datePicker = UIDatePicker(frame: .init(x: 100, y: 300, width: 100, height: 100))
     private let toolbar = UIToolbar(frame: .init(x: 0, y: 0, width: 100, height: 40))
     
+    var photoImage = UIImageView()
     
     lazy var doneButton: UIBarButtonItem = {
-        UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(tapped))
+        UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(tappedDone))
     }()
     
     
@@ -34,14 +35,18 @@ class TitleSubtitleCell: UITableViewCell {
     }
     
     func update(with viewModel: TitleSubtitleCellViewMode) {
+        self.viewModel = viewModel // Referente ao parametro, lembra estamos alimentando com um TitleSubtitleViewModel
         titleLabel.text = viewModel.title
         subtitleTextfield.text = viewModel.subtitle
         subtitleTextfield.placeholder = viewModel.placeholder
         subtitleTextfield.inputView = viewModel.type == .text ? nil : datePicker
         subtitleTextfield.inputAccessoryView = viewModel.type == .text ? nil : toolbar
+        self.photoImage.isHidden = viewModel.type != .image
+        self.subtitleTextfield.isHidden = viewModel.type == .image
+        photoImage.image = viewModel.image
     }
     
-    @objc func tapped() {
+    @objc func tappedDone() {
         viewModel?.update(date: datePicker.date)
     }
 }
@@ -51,13 +56,16 @@ extension TitleSubtitleCell: ViewCode {
         contentView.addSubview(stackVertical)
         stackVertical.addArrangedSubview(titleLabel)
         stackVertical.addArrangedSubview(subtitleTextfield)
+        stackVertical.addArrangedSubview(photoImage)
     }
     func setupConstraint() {
         NSLayoutConstraint.activate([
             stackVertical.topAnchor.constraint(equalTo: contentView.topAnchor, constant: constant),
             stackVertical.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: constant),
-            stackVertical.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: constant),
-            stackVertical.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -constant)
+            stackVertical.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -constant),
+            stackVertical.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -constant),
+            
+            photoImage.heightAnchor.constraint(equalToConstant: 200)
         ])
     }
     func extrasFeatures() {
@@ -72,8 +80,12 @@ extension TitleSubtitleCell: ViewCode {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
         datePicker.preferredDatePickerStyle = .wheels// Ou seja só faltava isso aqui antes.
+        datePicker.datePickerMode = .date
         toolbar.backgroundColor = .white
         toolbar.setItems([doneButton], animated: true)
+        photoImage.layer.cornerRadius = 10
+        photoImage.backgroundColor = .lightGray
+        stackVertical.spacing = viewModel?.type == .image ? 16 : 1
         
     }
 }

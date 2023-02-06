@@ -11,7 +11,7 @@ final class EventListCoordinator: Coordinator {
     private(set) var childCoordinator: [Coordinator] = []
     
     private let navigation: UINavigationController
-    
+    var onSaveEvent = {} //Vai devolver nada
     init(navigation: UINavigationController) {
         self.navigation = navigation
     }
@@ -20,6 +20,7 @@ final class EventListCoordinator: Coordinator {
         let eventListViewController = EventListViewController()
         let eventListViewModel = EventListViewModel()
         eventListViewModel.coordinator = self
+        onSaveEvent = eventListViewModel.reload
         eventListViewController.viewModel = eventListViewModel
         navigation.setViewControllers([eventListViewController], animated: false)
     }
@@ -39,3 +40,4 @@ final class EventListCoordinator: Coordinator {
         }
     }
 }
+
