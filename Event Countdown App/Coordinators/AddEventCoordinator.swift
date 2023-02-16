@@ -48,15 +48,13 @@ class AddEventCoordinator: Coordinator {
         guard let modalNavigation = modalNavigation else {return}
         let imagePickerCoordinator = ImagePickerCoordinator(navigation: modalNavigation)
         imagePickerCoordinator.parentCoordinator = self
+        imagePickerCoordinator.onFinishPicking = { image in
+            completion(image)
+        }
         childCoordinator.append(imagePickerCoordinator)
         imagePickerCoordinator.start()
     }
-    
-    func finishPickingMedia(image: UIImage) {
-        completion(image)// 4 -> Finalmente chamamos a closure depois da seleção de imagem, e executa o bloco de código implementado.
-        modalNavigation?.dismiss(animated: true)
-    }
-    
+
     func childDidFinish(coordinator: Coordinator) {
         if let index = childCoordinator.firstIndex(where: { coord in
             return coordinator === coord

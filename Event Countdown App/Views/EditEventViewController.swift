@@ -1,15 +1,15 @@
 //
-//  AddEventViewController.swift
+//  EditEventViewController.swift
 //  Event Countdown App
 //
-//  Created by Humberto Rodrigues on 24/01/23.
+//  Created by Humberto Rodrigues on 16/02/23.
 //
 
 import UIKit
 
-class AddEventViewController: UIViewController {
+class EditEventViewController: UIViewController {
     
-    var viewModel: AddEventViewModel!
+    var viewModel: EditEventViewModel?
     
     lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -29,24 +29,24 @@ class AddEventViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        viewModel.viewDidDisappear()
+        viewModel?.viewDidDisappear()
     }
     
     deinit {
         print("deinit from AddEventcontroller")
     }
     
-    @objc func tappedInButton() {
-        viewModel.tappedInButton()
+    @objc func tapToUpdate() {
+        viewModel?.tapToUpdate()
     }
 }
 
-extension AddEventViewController: UITableViewDelegate, UITableViewDataSource {
+extension EditEventViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfRows()
+        return viewModel?.numberOfRows() ?? 0
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellViewModel = viewModel.cellForRow(at: indexPath)//Nesse método ja tenho acesso as células[indexPath.row] porque as retorno na ViewModel.
+        let cellViewModel = viewModel?.cellForRow(at: indexPath)//Nesse método ja tenho acesso as células[indexPath.row] porque as retorno na ViewModel.
         switch cellViewModel {
         case .titleSubtitle(let titleSubtitleCellViewModel):
             let cell = tableView.dequeueReusableCell(withIdentifier: "TitleSubtitleCell", for: indexPath) as! AddListCell
@@ -59,12 +59,12 @@ extension AddEventViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel.didSelectRow(at: indexPath)
+        viewModel?.didSelectRow(at: indexPath)
         tableView.deselectRow(at: indexPath, animated: false)
     }
 }
 
-extension AddEventViewController: ViewCode{
+extension EditEventViewController: ViewCode{
     func buildHierarquic() {
         view.addSubview(tableView)
     }
@@ -79,20 +79,20 @@ extension AddEventViewController: ViewCode{
     }
     func extrasFeatures() {
         view.backgroundColor = .white
-        navigationItem.title = viewModel.title
+        navigationItem.title = viewModel?.title
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(tappedInButton))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(tapToUpdate))
         navigationController?.navigationBar.tintColor = .black
         self.navigationItem.largeTitleDisplayMode = .always
-        viewModel.viewDidLoad()
-        viewModel.onUpdate = { [weak self] in
+        viewModel?.viewDidLoad()
+        viewModel?.onUpdate = { [weak self] in
             self?.tableView.reloadData()
         }
     }
 }
 
-extension AddEventViewController: UITextFieldDelegate {
+extension EditEventViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         guard let currentText = textField.text else {return false}
         let text = currentText + string
@@ -100,9 +100,8 @@ extension AddEventViewController: UITextFieldDelegate {
         print(point)
         if let indexPath = tableView.indexPathForRow(at: point) {
             //Chamar o método da ViewModel para atualizar a celula que está em TitleSubTitleCell
-            viewModel.updateCell(indexPath: indexPath, subtitle: text)
+            viewModel?.updateCell(indexPath: indexPath, subtitle: text)
         }
         return true
     }
 }
-

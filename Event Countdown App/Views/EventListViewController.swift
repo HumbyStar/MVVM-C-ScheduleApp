@@ -22,7 +22,6 @@ class EventListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupView()
         setupViewCode()
     }
     
@@ -58,6 +57,10 @@ extension EventListViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        viewModel.didSelect(at: indexPath)
+    }
 }
 
 extension EventListViewController: ViewCode {
@@ -69,6 +72,7 @@ extension EventListViewController: ViewCode {
         tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
     }
     func extrasFeatures() {
+        setupView()
         viewModel.onUpdate = { [weak self] in
             self?.tableView.reloadData()
         }

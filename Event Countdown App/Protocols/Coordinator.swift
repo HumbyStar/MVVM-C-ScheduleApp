@@ -10,5 +10,11 @@ import Foundation
 protocol Coordinator: AnyObject {
     var childCoordinator: [Coordinator] {get}
     func start()
-    
+    func childDidFinish(childcoordinator: Coordinator)
+}
+
+extension Coordinator {
+    func childDidFinish(childcoordinator: Coordinator) {
+        
+    }
 }

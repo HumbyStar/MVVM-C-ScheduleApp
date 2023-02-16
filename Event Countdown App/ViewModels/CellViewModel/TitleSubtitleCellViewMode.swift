@@ -40,6 +40,7 @@ final class TitleSubtitleCellViewMode {
     
     func update(title: String) {
         self.subtitle = title
+        // Por que não precisei celula Update aqui?
     }
     
     func update(date: Date) {

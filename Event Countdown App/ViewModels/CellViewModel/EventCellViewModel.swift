@@ -6,14 +6,17 @@
 //
 
 import UIKit
+import CoreData
 
 class EventCellViewModel {
     
     let event: Event // Só é possivel montar cada event, graças a essa propriedade..
     let date = Date()
-    private static let imageCache = NSCache<NSString,UIImage>()
+    static let imageCache = NSCache<NSString,UIImage>()
     private let imageQueue = DispatchQueue(label: "imageQueue", qos: .background)
     // .background como QoS, você está indicando que a tarefa que será executada na fila de imagens (imageQueue) tem prioridade baixa e pode ser executada a qualquer momento, dependendo da disponibilidade de recursos.
+    
+    var onSelect: (NSManagedObjectID) -> Void = {_ in }
     
     private var cacheKey: String {
         event.objectID.description
@@ -26,6 +29,19 @@ class EventCellViewModel {
     var timeRemainingStrings: [String] {
         guard let eventDate = event.date else {return []}
         return date.timeRemaining(until: eventDate)?.components(separatedBy: ",") ?? []
+    }
+    
+    var remainingTimeViewModel: RemainingTimeViewModel? {
+        guard let eventDate = event.date, let remainingTimeTexts = date.timeRemaining(until: eventDate)?.components(separatedBy: " e ") else {return nil}
+        var remainingTimeTextsEdited = [String]()
+        for worlds in remainingTimeTexts {
+            remainingTimeTextsEdited.append(contentsOf: worlds.components(separatedBy: ","))
+        }
+        return RemainingTimeViewModel(remainingTimeTexts: remainingTimeTextsEdited, textSize: .normal)
+    }
+    
+    func didSelect() {
+        onSelect(event.objectID)
     }
     
     var dateText: String {

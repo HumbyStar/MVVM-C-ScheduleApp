@@ -1,15 +1,14 @@
 //
-//  AddEventViewModel.swift
+//  EditEventViewModel.swift
 //  Event Countdown App
 //
-//  Created by Humberto Rodrigues on 24/01/23.
-// MARK: Precisamos do CoreDataManager instanciado aqui para salvar o event quando clicarmos em tappedDone
-// MARK: CellBuilder é uma forma de organizar meu código e já atribuir tudo montado para a AddEventViewModel
+//  Created by Humberto Rodrigues on 16/02/23.
+//
 
-import Foundation
 import UIKit
+import CoreData
 
-final class AddEventViewModel {
+final class EditEventViewModel {
     
     enum cell {
         case titleSubtitle(TitleSubtitleCellViewMode) // É tipo um IF para 2 tipos de células que irão ser diferentes, caso celula A, montará de um jeito, caso celula B montará de outro jeito.
@@ -19,28 +18,34 @@ final class AddEventViewModel {
     // MARK: Ele criou um array de células, que nesse caso está vazio.
     
     private(set)var cells: [AddEventViewModel.cell] = []
+    
     let title = "Add"
-    weak var coordinator: AddEventCoordinator?
+    
+    weak var coordinator: EditEventCoordinator?
     var onUpdate: () -> Void = {}
     var cellBuilder: CellBuilder
     var coreDataManager: CoreDataManager
+    var event: Event
+    
     var nameCellViewModel: TitleSubtitleCellViewMode?
     var dateCellViewModel: TitleSubtitleCellViewMode?
     var backgroundImageCellViewModel: TitleSubtitleCellViewMode?
+    
     lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd/MM/yyy"
         return formatter
     }()
     
-    init(cellBuilder: CellBuilder, coreDataManager: CoreDataManager = CoreDataManager.shared) {
+    init(cellBuilder: CellBuilder, coreDataManager: CoreDataManager = CoreDataManager.shared, event: Event) {
         self.cellBuilder = cellBuilder
         self.coreDataManager = coreDataManager
+        self.event = event
     }
    
     
     func viewDidDisappear() {
-        coordinator?.didFinishAddEvent()
+        coordinator?.didFinishEditEvent()
     }
     
     func viewDidLoad() { //MARK: Onde eu de fato crio as células do meu array Cells. Então quando eu chamar ViewDidLoad, as células serão criadas/carregadas.
@@ -57,13 +62,10 @@ final class AddEventViewModel {
         return cells[indexPath.row] //Array está vazio mas irá retornar o indexPath.row do array quando pedido
     }
     
-    func tappedInButton() {
-        print("Botão foi clicado")
-        print("Precisamos pegar as informações da tela Add e Adicionar no CoreData")
-        print("Também por ultimo precisamos avisar pro Coordinator dar um dismiss e encerrar a tela")
+    func tapToUpdate() {
         guard let name = nameCellViewModel?.subtitle, let dateString = dateCellViewModel?.subtitle, let image = backgroundImageCellViewModel?.image, let date = dateFormatter.date(from: dateString) else {return}
-        coreDataManager.saveEvent(name: name, date: date, image: image)
-        coordinator?.finishSaveEvent()
+        coreDataManager.updateEvent(event: event, name: name, date: date, image: image)
+        coordinator?.finishEditEvent()
     }
     
     func updateCell(indexPath: IndexPath, subtitle: String) {
@@ -97,7 +99,7 @@ final class AddEventViewModel {
     }
 }
 
-extension AddEventViewModel {
+extension EditEventViewModel {
     func setupCells() {
         nameCellViewModel = cellBuilder.makeTitleSubtitleCellViewModel(type: .text)
         dateCellViewModel = cellBuilder.makeTitleSubtitleCellViewModel(type: .date) { [weak self] in
@@ -112,5 +114,13 @@ extension AddEventViewModel {
         cells = [.titleSubtitle(nameCellViewModel),
                  .titleSubtitle(dateCellViewModel),
                  .titleSubtitle(backgroundImageCellViewModel)]
+        
+        
+        guard let name = event.name, let date = event.date, let imageData = event.image, let image = UIImage(data: imageData) else {return}
+        
+        nameCellViewModel.update(title: name)
+        dateCellViewModel.update(date: date)
+        backgroundImageCellViewModel.update(image: image)
     }
 }
+

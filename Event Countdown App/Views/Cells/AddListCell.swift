@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TitleSubtitleCell: UITableViewCell {
+class AddListCell: UITableViewCell {
     private let titleLabel = UILabel()
     let subtitleTextfield = UITextField()
     private var stackVertical = UIStackView()
@@ -39,8 +39,11 @@ class TitleSubtitleCell: UITableViewCell {
         titleLabel.text = viewModel.title
         subtitleTextfield.text = viewModel.subtitle
         subtitleTextfield.placeholder = viewModel.placeholder
+        
+        
         subtitleTextfield.inputView = viewModel.type == .text ? nil : datePicker
         subtitleTextfield.inputAccessoryView = viewModel.type == .text ? nil : toolbar
+        
         self.photoImage.isHidden = viewModel.type != .image
         self.subtitleTextfield.isHidden = viewModel.type == .image
         photoImage.image = viewModel.image
@@ -51,7 +54,7 @@ class TitleSubtitleCell: UITableViewCell {
     }
 }
 
-extension TitleSubtitleCell: ViewCode {
+extension AddListCell: ViewCode {
     func buildHierarquic() {
         contentView.addSubview(stackVertical)
         stackVertical.addArrangedSubview(titleLabel)

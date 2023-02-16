@@ -18,7 +18,7 @@ class EventCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private var timeRemainingLabels = [UILabel(), UILabel(), UILabel(), UILabel()]
+    private var remainingStackView = RemainingTimeStackView()
     private var lbDate = UILabel()
     private var lbEvent = UILabel()
     private var backgroundImage = UIImageView()
@@ -26,9 +26,8 @@ class EventCell: UITableViewCell {
     private var view = UIView()
     
     func update(with viewModel: EventCellViewModel) {
-        viewModel.timeRemainingStrings.enumerated().forEach{
-            timeRemainingLabels[$0.offset].text = $0.element
-        }
+        guard let remainingTimeViewModel = viewModel.remainingTimeViewModel else {return}
+        remainingStackView.update(with: remainingTimeViewModel)
         lbDate.text = viewModel.dateText
         lbEvent.text = viewModel.eventName
         viewModel.loadImage { image in
@@ -54,16 +53,13 @@ extension EventCell: ViewCode {
         
     }
     func extrasFeatures() {
+        remainingStackView.setup()
         stackView.axis = .vertical
         stackView.alignment = .trailing
         stackView.translatesAutoresizingMaskIntoConstraints = false
         backgroundImage.translatesAutoresizingMaskIntoConstraints = false
         lbEvent.translatesAutoresizingMaskIntoConstraints = false
-        timeRemainingLabels.forEach {
-            stackView.addArrangedSubview($0)
-            $0.font = .systemFont(ofSize: 28, weight: .medium)
-            $0.textColor = .white
-        }
+        stackView.addArrangedSubview(remainingStackView)
         stackView.addArrangedSubview(UIView())
         stackView.addArrangedSubview(lbDate)
         

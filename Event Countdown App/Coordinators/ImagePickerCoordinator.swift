@@ -11,7 +11,9 @@ class ImagePickerCoordinator: NSObject, Coordinator {
     private(set)var childCoordinator: [Coordinator] = []
     private var navigation: UINavigationController?
     
-    var parentCoordinator: AddEventCoordinator?
+    var parentCoordinator: Coordinator?
+    
+    var onFinishPicking: (UIImage) -> Void = {_ in }
     
     init(navigation: UINavigationController) {
         self.navigation = navigation
@@ -31,10 +33,8 @@ class ImagePickerCoordinator: NSObject, Coordinator {
 extension ImagePickerCoordinator: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            parentCoordinator?.finishPickingMedia(image: image) 
-            
-            // Aqui é onde eu pego a imagem da galeria e entrego para o parametro da função finishPickingMedia, e lá iremos dizer para completion ser executada
+            onFinishPicking(image)
         }
-        parentCoordinator?.childDidFinish(coordinator: self)
+        parentCoordinator?.childDidFinish(childcoordinator: self)
     }
 }

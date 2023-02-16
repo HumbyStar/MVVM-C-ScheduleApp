@@ -15,7 +15,7 @@ final class EventListViewModel {
     }
     
     let title = "Events"
-    var coordinator: EventListCoordinator?
+    weak var coordinator: EventListCoordinator?
     private(set)var cells: [Cell] = []
     private let coreDataManager: CoreDataManager
     var onUpdate = {}
@@ -30,10 +30,15 @@ final class EventListViewModel {
     }
     
     func reload() {
+        EventCellViewModel.imageCache.removeAllObjects()
         let events = coreDataManager.fetchEvents()
         cells = events.map{
-            .normal(EventCellViewModel($0))
+            let eventCellViewModel = EventCellViewModel($0)
             // Aqui está o pulo do gato, fazemos um map no array que events tiver recebido após o fetch, onde esse map, passará cada elemento dentro dos parametros de EventCellViewModel
+            if let coordinator = coordinator {
+                eventCellViewModel.onSelect = coordinator.onSelect
+            }
+            return .normal(eventCellViewModel)
         }
         onUpdate()
     }
@@ -44,6 +49,15 @@ final class EventListViewModel {
     
     func cellForRowAt(indexPath: IndexPath) -> EventListViewModel.Cell {
         return cells[indexPath.row]
+    }
+    
+    func didSelect(at indexPath: IndexPath) {
+        switch cells[indexPath.row] {
+        case .normal(let eventCellViewModel):
+            eventCellViewModel.didSelect()
+        default:
+            break
+        }
     }
     
     func tappedAddEvent() {
