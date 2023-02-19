@@ -24,7 +24,7 @@ final class EditEventViewModel {
     weak var coordinator: EditEventCoordinator?
     var onUpdate: () -> Void = {}
     var cellBuilder: CellBuilder
-    var coreDataManager: CoreDataManager
+    var eventService: EventServiceProtocol
     var event: Event
     
     var nameCellViewModel: TitleSubtitleCellViewMode?
@@ -37,9 +37,9 @@ final class EditEventViewModel {
         return formatter
     }()
     
-    init(cellBuilder: CellBuilder, coreDataManager: CoreDataManager = CoreDataManager.shared, event: Event) {
+    init(cellBuilder: CellBuilder, eventService: EventServiceProtocol = EventService(), event: Event) {
         self.cellBuilder = cellBuilder
-        self.coreDataManager = coreDataManager
+        self.eventService = eventService
         self.event = event
     }
    
@@ -64,7 +64,7 @@ final class EditEventViewModel {
     
     func tapToUpdate() {
         guard let name = nameCellViewModel?.subtitle, let dateString = dateCellViewModel?.subtitle, let image = backgroundImageCellViewModel?.image, let date = dateFormatter.date(from: dateString) else {return}
-        coreDataManager.updateEvent(event: event, name: name, date: date, image: image)
+        eventService.perform(.update(event), data: EventService.EventInputData(name: name, date: date, image: image))
         coordinator?.finishEditEvent()
     }
     

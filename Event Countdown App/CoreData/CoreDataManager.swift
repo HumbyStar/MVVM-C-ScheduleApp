@@ -22,21 +22,16 @@ final class CoreDataManager {
        return persistentContainer.viewContext
     }
     
-    func getEvent(_ id: NSManagedObjectID) -> Event? {
+    func get<T: NSManagedObject>(_ id: NSManagedObjectID) -> T? {
         do {
-            return try context.existingObject(with: id) as? Event
-            
+            return try context.existingObject(with: id) as? T
         } catch {
-            print(error.localizedDescription)
-            return nil
+            print(error)
         }
+        return nil
     }
     
-    func updateEvent(event: Event,name: String, date: Date, image: UIImage) {
-        event.setValue(name, forKey: "name")// Ex: New Year
-        let imageData = image.jpegData(compressionQuality: 1)
-        event.setValue(imageData, forKey: "image")
-        event.setValue(date, forKey: "date")
+    func save() {
         do {
             try context.save()
         }
@@ -45,27 +40,15 @@ final class CoreDataManager {
         }
     }
     
-    func saveEvent(name: String, date: Date, image: UIImage) {
-        let event = Event(context: context)
-        event.setValue(name, forKey: "name")// Ex: New Year
-        let imageData = image.jpegData(compressionQuality: 1)
-        event.setValue(imageData, forKey: "image")
-        event.setValue(date, forKey: "date")
-        do {
-            try context.save()
-        }
-        catch {
-            print(error.localizedDescription)
-        }
-    }
-    
-    func fetchEvents() -> [Event] { // Vamos montar meu array de Eventos
-        do {
-            let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
-            let events = try context.fetch(fetchRequest)
-            return events
-        }
-        catch {
+    func getAll<T:NSManagedObject>() -> [T] {
+        do{
+            let fetchRequest = NSFetchRequest<T>(entityName: "\(T.self)")
+//            let backgroundContext = persistentContainer.newBackgroundContext()
+//            backgroundContext.perform {
+//                   ESTUDAR SUA IMPLEMENTAÇÃO MAIS TARDAR
+//            }
+            return try context.fetch(fetchRequest)
+        } catch {
             print(error.localizedDescription)
             return []
         }

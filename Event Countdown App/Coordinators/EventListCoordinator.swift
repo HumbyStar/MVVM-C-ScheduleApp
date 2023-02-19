@@ -8,11 +8,11 @@
 import UIKit
 import CoreData
 
-final class EventListCoordinator: Coordinator {
+final class EventListCoordinator: Coordinator, EventUpdatingCoordinator {
     private(set) var childCoordinator: [Coordinator] = []
     
     private let navigation: UINavigationController
-    var onSaveEvent = {} // Uma call que chamará uma função
+    var onUpdateEvent = {} // Uma call que chamará uma função
     
     init(navigation: UINavigationController) {
         self.navigation = navigation
@@ -22,7 +22,7 @@ final class EventListCoordinator: Coordinator {
         let eventListViewController = EventListViewController()
         let eventListViewModel = EventListViewModel()
         eventListViewModel.coordinator = self
-        onSaveEvent = eventListViewModel.reload
+        onUpdateEvent = eventListViewModel.reload
         eventListViewController.viewModel = eventListViewModel
         navigation.setViewControllers([eventListViewController], animated: false)
     }

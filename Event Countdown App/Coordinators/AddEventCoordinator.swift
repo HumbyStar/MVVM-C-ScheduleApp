@@ -14,7 +14,7 @@ class AddEventCoordinator: Coordinator {
     private let navigation: UINavigationController
     private var modalNavigation: UINavigationController?
     
-    var parentCoordinator: EventListCoordinator?
+    var parentCoordinator: (EventUpdatingCoordinator & Coordinator)?
     var completion: (UIImage) -> Void = { _ in} // 1 -> Aqui eu criei a expressão
     // A Variável completion é uma closure que será chamada depois da seleção de imagem.
     
@@ -37,7 +37,7 @@ class AddEventCoordinator: Coordinator {
     }
     
     func didFinishAddEvent() {
-        parentCoordinator?.onSaveEvent()
+        parentCoordinator?.onUpdateEvent()
         parentCoordinator?.childDidFinish(childcoordinator: self)
     }
     
@@ -64,8 +64,6 @@ class AddEventCoordinator: Coordinator {
     }
     
     func finishSaveEvent() {
-        print(CoreDataManager().fetchEvents().first?.name)
-        print("encerramos a tela")
         navigation.dismiss(animated: true)
     }
     

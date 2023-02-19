@@ -11,7 +11,7 @@ class EditEventCoordinator: Coordinator {
     private(set)var childCoordinator: [Coordinator] = []
     private let navigation: UINavigationController
     private let event: Event
-    var parentCoordinator: EventDetailCoordinator?
+    var parentCoordinator: (EventUpdatingCoordinator & Coordinator)?
     var completion: (UIImage) -> Void = {_ in }
     
     init(event: Event, navigation: UINavigationController){

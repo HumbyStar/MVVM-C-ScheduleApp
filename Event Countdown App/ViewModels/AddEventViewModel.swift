@@ -23,7 +23,7 @@ final class AddEventViewModel {
     weak var coordinator: AddEventCoordinator?
     var onUpdate: () -> Void = {}
     var cellBuilder: CellBuilder
-    var coreDataManager: CoreDataManager
+    var eventService: EventServiceProtocol
     var nameCellViewModel: TitleSubtitleCellViewMode?
     var dateCellViewModel: TitleSubtitleCellViewMode?
     var backgroundImageCellViewModel: TitleSubtitleCellViewMode?
@@ -32,10 +32,11 @@ final class AddEventViewModel {
         formatter.dateFormat = "dd/MM/yyy"
         return formatter
     }()
+
     
-    init(cellBuilder: CellBuilder, coreDataManager: CoreDataManager = CoreDataManager.shared) {
+    init(cellBuilder: CellBuilder, eventService: EventServiceProtocol = EventService()) {
         self.cellBuilder = cellBuilder
-        self.coreDataManager = coreDataManager
+        self.eventService = eventService
     }
    
     
@@ -62,7 +63,7 @@ final class AddEventViewModel {
         print("Precisamos pegar as informações da tela Add e Adicionar no CoreData")
         print("Também por ultimo precisamos avisar pro Coordinator dar um dismiss e encerrar a tela")
         guard let name = nameCellViewModel?.subtitle, let dateString = dateCellViewModel?.subtitle, let image = backgroundImageCellViewModel?.image, let date = dateFormatter.date(from: dateString) else {return}
-        coreDataManager.saveEvent(name: name, date: date, image: image)
+        eventService.perform(.add, data: EventService.EventInputData(name: name, date: date, image: image))
         coordinator?.finishSaveEvent()
     }
     
